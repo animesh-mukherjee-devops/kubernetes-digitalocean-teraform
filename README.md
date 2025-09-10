@@ -39,31 +39,42 @@ Terraform state is stored in **GitHub Secrets**, so everything can be managed di
 
 ## 🚀 Usage Flow
 
-Developer Pushes Code
-│
-▼
-┌─────────────────────────┐
-│ Terraform Apply Workflow │
-│ - terraform init │
-│ - terraform apply │
-│ - Save tfstate → Secret │
-└─────────────────────────┘
-│
-▼
-DigitalOcean Cluster Created
-│
-▼
-[ Work with your cluster ]
-│
-▼
-┌──────────────────────────┐
-│ Terraform Destroy Manual │
-│ - Restore tfstate │
-│ - terraform destroy │
-│ - Delete tfstate secret │
-└──────────────────────────┘
-│
-▼
++------------------------+
+| Developer pushes code  |
++------------------------+
+         |
+         v
++----------------------------------------+
+| Terraform Apply Workflow               |
+| - terraform init                       |
+| - terraform apply                      |
+| - save terraform.tfstate -> TF_STATE   |
++----------------------------------------+
+         |
+         v
++-----------------------------+
+| DigitalOcean Cluster Created |
++-----------------------------+
+         |
+         v
++-----------------------+
+| Work with your cluster|
++-----------------------+
+         |
+         v
++-------------------------------------------+
+| Terraform Destroy (manual trigger)        |
+| - restore terraform.tfstate from TF_STATE |
+| - terraform destroy                       |
+| - delete TF_STATE secret                  |
++-------------------------------------------+
+         |
+         v
++------------------+
+| Cluster cleaned  |
+| up ✅             |
++------------------+
+
 
 
 ---
