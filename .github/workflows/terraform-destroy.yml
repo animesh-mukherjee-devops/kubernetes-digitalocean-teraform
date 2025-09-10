@@ -1,13 +1,13 @@
 name: Terraform Destroy
 
 on:
-  workflow_dispatch:   # manual trigger only
+  workflow_dispatch:
 
 jobs:
   destroy:
     runs-on: ubuntu-latest
     environment:
-      name: production   # add approvals here if needed
+      name: production
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -16,6 +16,12 @@ jobs:
         uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: '1.5.0'
+
+      - name: Restore state from secret
+        env:
+          STATE: ${{ secrets.TF_STATE }}
+        run: |
+          echo "$STATE" | base64 -d > cluster/terraform.tfstate
 
       - name: Terraform Init
         working-directory: ./cluster

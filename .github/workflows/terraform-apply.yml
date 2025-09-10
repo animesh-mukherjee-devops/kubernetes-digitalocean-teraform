@@ -9,7 +9,7 @@ jobs:
   apply:
     runs-on: ubuntu-latest
     environment:
-      name: production   # set up protection/approvals in repo settings
+      name: production
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -27,19 +27,12 @@ jobs:
         working-directory: ./cluster
         env:
           DO_TOKEN: ${{ secrets.DO_TOKEN }}
-        run: |
-          # supply token to Terraform via var or env
-          terraform apply -input=false -auto-approve -var="do_token=${DO_TOKEN}"
+        run: terraform apply -auto-approve -var="do_token=${DO_TOKEN}"
 
-      - name: Export kubeconfig to file
+      - name: Encode and Push State to Secret
         working-directory: ./cluster
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
-          terraform output -raw kubeconfig > kubeconfig
-          # optional safe perms
-          chmod 600 kubeconfig
-
-      - name: Upload kubeconfig artifact (expires after retention)
-        uses: actions/upload-artifact@v4
-        with:
-          name: kubeconfig-${{ github.run_id }}
-          path: ./cluster/kubeconfig
+          STATE=$(base64 -w 0 terraform.tfstate)
+          gh secret set TF_STATE --body "$STATE"
