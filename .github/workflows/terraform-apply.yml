@@ -11,13 +11,19 @@ jobs:
     environment:
       name: production
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
+      - uses: hashicorp/setup-terraform@v2
         with:
-          terraform_version: '1.5.0'
+          terraform_version: 1.5.0
+
+      - name: Restore state from secret (if exists)
+        env:
+          STATE: ${{ secrets.TF_STATE }}
+        run: |
+          if [ ! -z "$STATE" ]; then
+            echo "$STATE" | base64 -d > cluster/terraform.tfstate
+          fi
 
       - name: Terraform Init
         working-directory: ./cluster
@@ -29,7 +35,7 @@ jobs:
           DO_TOKEN: ${{ secrets.DO_TOKEN }}
         run: terraform apply -auto-approve -var="do_token=${DO_TOKEN}"
 
-      - name: Encode and Push State to Secret
+      - name: Save updated state to secret
         working-directory: ./cluster
         env:
           GH_TOKEN: ${{ secrets.GH_PAT }}
