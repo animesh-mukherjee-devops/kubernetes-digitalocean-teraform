@@ -1,0 +1,51 @@
+name: Terraform Plan
+
+on:
+  pull_request:
+    paths:
+      - 'cluster/**'
+      - '.github/workflows/**'
+      - '*.tf'
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: '1.5.0'   # any version >=1.3.0 is fine
+
+      - name: Cache .terraform
+        uses: actions/cache@v4
+        with:
+          path: .terraform
+          key: ${{ runner.os }}-tf-${{ hashFiles('**/*.tf*') }}
+
+      - name: Terraform Init
+        working-directory: ./cluster
+        run: terraform init -input=false
+
+      - name: Terraform Format Check
+        working-directory: ./cluster
+        run: terraform fmt -check
+
+      - name: Terraform Validate
+        working-directory: ./cluster
+        run: terraform validate
+
+      - name: Terraform Plan
+        id: plan
+        working-directory: ./cluster
+        run: |
+          terraform plan -input=false -no-color -out=tfplan
+          terraform show -no-color tfplan > plan.txt
+
+      - name: Upload plan artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-plan
+          path: ./cluster/plan.txt
