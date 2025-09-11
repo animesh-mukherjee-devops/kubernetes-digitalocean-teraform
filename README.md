@@ -63,28 +63,28 @@ In your repository, go to **Settings** → **Secrets and variables** → **Actio
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                     GitHub Repository                    │
+│                     GitHub Repository                   │
 ├─────────────────────────────────────────────────────────┤
-│                                                          │
-│  cluster/                                                │
+│                                                         │
+│  cluster/                                               │
 │  └── main.tf          # Terraform configuration         │
-│                                                          │
+│                                                         │
 │  .github/workflows/                                     │
 │  ├── terraform-apply.yml    # Create cluster            │
 │  └── terraform-destroy.yml  # Destroy cluster           │
-│                                                          │
+│                                                         │
 │  GitHub Secrets:                                        │
 │  ├── DO_TOKEN         # DigitalOcean API access         │
 │  ├── GH_PAT           # GitHub API access               │
 │  └── TF_STATE         # Terraform state (auto-managed)  │
-│                                                          │
+│                                                         │
 └─────────────────────────────────────────────────────────┘
                             │
                             ▼
                   ┌─────────────────┐
-                  │   DigitalOcean   │
-                  │   Kubernetes     │
-                  │     Cluster      │
+                  │   DigitalOcean  │
+                  │   Kubernetes    │
+                  │     Cluster     │
                   └─────────────────┘
 ```
 
